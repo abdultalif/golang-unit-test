@@ -1,0 +1,128 @@
+buat project golang dengan perintah (go mod init nama-modul) biasanya nama modul di ambil dari repo GitHub contoh:
+go mod init github.com/abdultalif/backend-grocery-delivery
+
+golang menyediakan sebuah struct yang bernama (testing.T), struct ini digunakan untuk unit test di golang
+(testing.M) adalah struct yang digunakan untuk mengatur life cycle testing 
+(testing.B) adalah struct yang disediakan untuk benchmarking (mengukur kecepatan kode program)
+
+golang memiliki aturan khusus untuk file unit test, untuk membuat file nya kita wajib menggunakan akhiran _test, jadi jika kita membuat file product.go jika ingin membuat unit test nya jadi product_test.go
+
+sedangkan nama function untuk unit test harus diawali dengan nama Test, jika kita membuat function product.go jadi unit test functionya TestProduct.go, selanjutnya harus memiliki parameter (t *testing.T) dan tidak mengembalikan return value
+
+untuk menjalankan unit test jalankan perintah yang namanya (go test), jika ingin melihat lebih detail function test apa saja yg sudan di running gunakan (go test -v) -v itu artinya verbose. jika ingin memilih unit test mana yg ingin di running gunakan (go test -v -run TestNamaFunction)
+
+oh iya perintah di atas hanya berlaku jika kita masuk ke dalam folder yg ada file _test.go nya, jika kita ingin run test nya di folder root gunakan (./...) di akhir perintah contoh : (go test -v ./...) ini berlaku untuk semua perintah test yg ingin dilakukan di root folder tanpa harus masuk ke folder satu satu
+
+golang menyediakan cara untuk menggagalkan unit test dengan 4 function
+1. Fail(): akan menggagalkan unit test, namun tetap melanjutkan kode program selanjutnya, ingat kode program selanjutnya yg ada di dalam 1 function test bukan function test yg lain, di akhir nya unit test tersebut di anggap gagal
+2. FailNow(): akan menggagalkan unit test saat ini juga, tanpa melanjutkan eksekusi code selanjutnya unit test 
+3. Error(argument): lebih seperti melakukan log ada print namun setelah melakukan log eror secara otomatis memanggil function Fail(), parameter argument biasanya bertipe string dan berupa pesan, contoh Error("Harus nya daftar produk muncul")
+4. Fatal(argument): ini sama seperti Error() hanya saja saat log error muncul yg di panggil function failNow()
+
+assertion
+melakukan pengecekan di unit test secara manual menggunakan if else sangat menyusahkan, apalagi result data yg harus di cek itu banyak, oleh karena itu disarankan menggunakan assertion untuk melakukan pengecekan.
+Testify adalah library paling populer di golang untuk melakukan assertion, cara install testify nya sendiri cari we https://github.com/stretchr/testify lalu lakukan perintah go get github.com/stretchr/testify dan (go get github.com/stretchr/testify/assert) atau (go get github.com/stretchr/testify/require)
+
+sebernarnya perbedaan assert dan require sangatlah sederhana. 
+1. jika error menggunakan assert maka akan memanggil function Fail()
+2. jika error menggunakan require maka akan memanggil function FailNow()
+
+ini merupakan beberapa method/function yg sering di gunakan ketika menggunakan assert/require di library testify, dan ingat untuk pemanggilan function ini di awali dengan seperti ini assert.Equal() atau require.Equal()
+
+1. Equal(t, ekspetasi, aktual, pesan) / NotEqual(t, tidakDiinginkan, aktual, pesan)
+   Digunakan untuk:
+   Equal: Membandingkan kesamaan nilai dan tipe data secara ketat.
+   NotEqual: Digunakan untuk: Memastikan nilai tidak sama (termasuk perbedaan tipe data).
+   Contoh:
+   Equal(t, 200, response.Code, "Status code harus 200")
+   NotEqual(t, nil, user.Data, "Data user harus terisi")
+
+2. True(t, condition, msg) / False(t, condition, msg)
+   Digunakan untuk: Mengecek apakah nilai condition adalah true (atau false).
+   Contoh:
+   True(t, isLoggedIn, "User harus sudah login")
+   False(t, hasError, "Tidak boleh ada error")
+
+3. Nil(t, value, msg) / NotNil(t, value, msg)
+   Digunakan untuk: Mengecek apakah value adalah nil (atau bukan nil).
+   Contoh:
+   Nil(t, err, "Seharusnya tidak ada error")
+   NotNil(t, user, "User tidak boleh nil")
+
+4. Error(t, err, msg) / NoError(t, err, msg)
+   Digunakan untuk:
+   Error: Memastikan ada error (err != nil).
+   NoError: Memastikan tidak ada error (err == nil).
+   Contoh:
+   Error(t, err, "Harusnya return error")
+   NoError(t, err, "Tidak boleh ada error")
+
+5. Len(t, collection, length, msg)
+   Digunakan untuk: Mengecek panjang slice/array/map.
+   Contoh:
+   Len(t, []int{1,2,3}, 3, "Panjang slice harus 3")
+   Len(t, map[string]int{"a":1}, 1, "Panjang map harus 1")
+
+6. Contains(t, container, item, msg) / NotContains(t, container, item, msg)
+   Digunakan untuk: Mengecek ada/tidaknya item dalam string/slice/map.
+   Contoh:
+   Contains(t, "hello", "ell", "String harus mengandung 'ell'")
+   NotContains(t, []int{1,2}, 3, "Slice tidak boleh mengandung 3")
+
+7. Panics(t, func(), msg) / NotPanics(t, func(), msg)
+   Digunakan untuk: Mengecek apakah fungsi memicu panic.
+   Contoh:
+   Panics(t, func(){ panic("error") }, "Harusnya panic")
+   NotPanics(t, normalFunc, "Tidak boleh panic")
+
+8. FileExists(t, path, msg) / DirExists(t, path, msg)
+   Digunakan untuk: Memverifikasi keberadaan file/direktori.
+   Contoh:
+   FileExists(t, "config.json", "File config harus ada")
+   DirExists(t, "assets/", "Direktori assets harus ada")
+
+9. JSONEq(t, expectedJSON, actualJSON, msg)
+   Digunakan untuk: Membandingkan kesetaraan dua JSON.
+   Contoh:
+   JSONEq(t, {"id":1}, {"id": 1}, "JSON tidak sesuai")
+
+
+
+
+Before dab after test
+digolang terdapat fitur yg beranama testing.M, fitur ini bernama Main, dimana digunakan untuk mengatur eksekusi unit test, namun hal ini juga bisa kita gunakan untuk melakukan before after di unit test
+untuk mengatur eksekusi unit test kita cukup membuat sebuah function bernama TestMain dengan parameter (testing.M), kalo ada function TestMain secara otomatis golang akan eksekusi function ini tiap kali menjalankan unit test di sebuah package, dengan ini kita bisa mengatur before dan after unit test kita sesuai yg kita mau, ingat function MainTest di eksekusi hanya sekali per-golang package, jadi seperti BeforeAll dan AfterAll pada jest di nodejs kayanya. bukan pertiap function unit test.
+contoh peggunaan before dan after test:
+func TestMain(m *testing.M) {
+	fmt.Println("Before unit test")
+	
+	// ini untuk eksekusi semua unit test yg ada dalam package
+	m.Run()
+	
+	fmt.Println("After unit test")
+}
+
+penjelasan dikit biar di masa depan baaca lagi ga bingung. untuk before itu biasanya digunakan sebagai setup sebelum testnya dijalankan, sedanngkan after digunakan sebagai teardown
+contohnya yg biasa dilakukan di before after
+1. mock untuk sms kalo ga email notifikasi (untuk mock sendiri bakal di jelaskan nanti)
+2. mock upload file 
+3. mock konek ke database
+4. mock cache kaya redis 
+
+
+Mock adalah teknik dari unit testing dimana kita membuat mock object dari suatu object yg memang sulit untuk di testing, Misal kita ingin membuat unit test, namun ternyata ada kode program kita yang harus memanggil API Call ke third party service. Hal ini sangat sulit untuk di test, karena unit testing kita harus selalu memanggil third party service, dan belum tentu response nya sesuai dengan apa yang kita mau
+Pada kasus seperti ini, cocok sekali untuk menggunakan mock object.
+Untuk membuat mock object, tidak ada fitur bawaan Go-Lang, namun kita bisa menggunakan library testify yang sebelumnya kita gunakan untuk assertion. Namun, perlu diperhatikan, jika desain kode program kita jelek, akan sulit untuk melakukan mocking, jadi pastikan kita melakukan pembuatan desain kode program kita dengan baik
+
+
+
+Benchmark adalah mekanisme menghitung kecepatan performa kode aplikasi kita. Benchmark di Go-Lang dilakukan dengan cara secara otomatis melakukan iterasi kode yang kita panggil berkali-kali sampai waktu tertentu. Kita tidak perlu menentukan jumlah iterasi dan lamanya, karena itu sudah diatur oleh (testing.B) bawaan dari testing package
+
+testing.B adalah struct yang digunakan untuk melakukan benchmark. testing.B mirip dengan testing.T, terdapat function Fail(), FailNow(), Error(), Fatal() dan lain-lain. Yang membedakan, ada beberapa attribute dan function tambahan yang digunakan untuk melakukan benchmark. Salah satunya adalah attribute (N), ini digunakan untuk melakukan total iterasi sebuah benchmark
+
+
+Cara kerja benchmark di Go-Lang sangat sederhana. Gimana kita hanya perlu membuat perulangan sejumlah N attribute. Nanti secara otomatis Go-Lang akan melakukan eksekusi sejumlah perulangan yang ditentukan secara otomatis, lalu mendeteksi berapa lama proses tersebut berjalan, dan disimpulkan performa benchmark nya dalam waktu
+Mirip seperti unit test, untuk benchmark pun, di Go-Lang sudah ditentukan nama function nya, harus diawali dengan kata Benchmark, misal BenchmarkHelloWorl. Selain itu, harus memiliki parameter (b *testing.B). Dan tidak boleh mengembalikan return value. Untuk nama file benchmark, sama seperti unit test, diakhiri dengan _test, misal hello_world_test.go
+Untuk menjalankan seluruh benchmark di module, kita bisa menggunakan perintah sama seperti test, namun ditambahkan parameter bench :
+go test -v -bench=
+
